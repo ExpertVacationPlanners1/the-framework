@@ -10,35 +10,52 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Timeout — never spin forever
+    const timeout = setTimeout(() => setLoading(false), 5000)
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(timeout)
+      if (error) {
+        console.error('Session error:', error)
+        setLoading(false)
+        return
+      }
       setUser(session?.user ?? null)
-      if (session?.user) loadProfile(session.user.id)
-      else setLoading(false)
+      if (session?.user) {
+        loadProfile(session.user.id)
+      } else {
+        setLoading(false)
+      }
+    }).catch(() => {
+      clearTimeout(timeout)
+      setLoading(false)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
-      if (session?.user) await loadProfile(session.user.id)
-      else {
+      if (session?.user) {
+        await loadProfile(session.user.id)
+      } else {
         setProfile(null)
         setSettings(null)
         setLoading(false)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const loadProfile = async (userId) => {
     try {
-      const [profileRes, settingsRes] = await Promise.all([
+      const [profileRes, settingsRes] = await Promise.allSettled([
         supabase.from('profiles').select('*').eq('id', userId).single(),
         supabase.from('user_settings').select('*').eq('user_id', userId).single()
       ])
-      setProfile(profileRes.data)
-      setSettings(settingsRes.data)
+      setProfile(profileRes.value?.data || null)
+      setSettings(settingsRes.value?.data || null)
     } catch (err) {
       console.error('Profile load error:', err)
     } finally {
