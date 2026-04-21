@@ -228,10 +228,18 @@ export default function Dashboard() {
     try {
       const ctrl = new AbortController()
       const t = setTimeout(() => ctrl.abort(), 6000)
+      // Get current session JWT to pass for authenticated API call
+      const { data: { session } } = await import('../lib/supabase').then(m => m.supabase.auth.getSession())
       const r = await fetch('/api/briefing-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, force }),
+        body: JSON.stringify({
+          userId: user.id,
+          force,
+          userJwt: session?.access_token,
+          settings: settings,
+          firstName: firstName
+        }),
         signal: ctrl.signal
       })
       clearTimeout(t)
