@@ -13,12 +13,36 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const { error } = await signIn(email, password)
-    if (error) {
-      setError(error.message === 'Invalid login credentials' ? 'Invalid email or password.' : error.message)
+
+    // Timeout safety — never spin forever
+    const timer = setTimeout(() => {
       setLoading(false)
-    } else {
-      navigate('/dashboard')
+      setError('Login is taking too long. Please try again.')
+    }, 10000)
+
+    try {
+      const { data, error } = await signIn(email, password)
+      clearTimeout(timer)
+
+      if (error) {
+        const msg = error.message?.toLowerCase() || ''
+        if (msg.includes('invalid')) setError('Incorrect email or password.')
+        else if (msg.includes('confirmed')) setError('Please confirm your email first, then try again.')
+        else setError(error.message)
+        setLoading(false)
+        return
+      }
+
+      if (data?.session) {
+        navigate('/dashboard')
+      } else {
+        setError('Could not sign in. Please try again.')
+        setLoading(false)
+      }
+    } catch (err) {
+      clearTimeout(timer)
+      setError('Something went wrong. Check your connection and try again.')
+      setLoading(false)
     }
   }
 
@@ -34,21 +58,17 @@ export default function Login() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="input-group">
             <label className="input-label">Email</label>
-            <input
-              type="email" className="input-field" placeholder="you@example.com"
-              value={email} onChange={e => setEmail(e.target.value)} required autoFocus
-            />
+            <input type="email" className="input-field" placeholder="you@example.com"
+              value={email} onChange={e => setEmail(e.target.value)} required autoFocus/>
           </div>
           <div className="input-group">
             <label className="input-label">Password</label>
-            <input
-              type="password" className="input-field" placeholder="Your password"
-              value={password} onChange={e => setPassword(e.target.value)} required
-            />
+            <input type="password" className="input-field" placeholder="Your password"
+              value={password} onChange={e => setPassword(e.target.value)} required/>
           </div>
 
           {error && (
-            <div style={{ padding: '10px 14px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+            <div style={{ padding: '12px 14px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
               <p style={{ fontSize: 13, color: 'var(--red)', fontWeight: 600 }}>{error}</p>
             </div>
           )}
