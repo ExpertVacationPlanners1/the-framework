@@ -3,21 +3,24 @@ import { createClient } from '@supabase/supabase-js'
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Missing Supabase environment variables')
-}
-
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: false, // CRITICAL: stops it looking for auth tokens in URL
+    flowType: 'pkce'
   }
 })
 
-// Auth helpers
 export const signUp = (email, password, fullName) =>
-  supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } })
+  supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: fullName },
+      emailRedirectTo: `${window.location.origin}/dashboard`
+    }
+  })
 
 export const signIn = (email, password) =>
   supabase.auth.signInWithPassword({ email, password })
@@ -28,7 +31,7 @@ export const getUser = () => supabase.auth.getUser()
 
 export const getSession = () => supabase.auth.getSession()
 
-// Default tasks per pillar — used during onboarding to seed user_tasks
+// Default tasks per pillar
 export const DEFAULT_TASKS = {
   work: [
     { text: "Complete your #1 priority work task before noon", priority: "high" },
@@ -59,13 +62,11 @@ export const DEFAULT_TASKS = {
     { text: "Sleep 7-8 hours tonight", priority: "high" },
     { text: "Drink 8 glasses of water today", priority: "medium" },
     { text: "Eat a protein-first breakfast", priority: "medium" },
-    { text: "No alcohol or substance use today", priority: "medium" },
   ],
   family: [
     { text: "One meaningful conversation with a family member", priority: "high" },
     { text: "Put the phone down during family time", priority: "high" },
     { text: "Express appreciation to someone you care about", priority: "medium" },
-    { text: "Plan one activity with your family this week", priority: "medium" },
   ],
 }
 
