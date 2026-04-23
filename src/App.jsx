@@ -8,6 +8,16 @@ import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
 import Dashboard from './pages/Dashboard'
 import VoiceSession from './pages/VoiceSession'
+import Upgrade from './pages/Upgrade'
+
+function FullScreenLoader() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontSize: 36 }}>🎯</div>
+      <div className="spinner spinner-dark" style={{ width: 24, height: 24 }} />
+    </div>
+  )
+}
 
 function ProtectedRoute({ children }) {
   const { user, profile, loading } = useAuth()
@@ -31,18 +41,6 @@ function PublicRoute({ children }) {
   return children
 }
 
-function FullScreenLoader() {
-  return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--surface)', flexDirection: 'column', gap: 16
-    }}>
-      <div style={{ fontSize: 32 }}>🎯</div>
-      <div className="spinner spinner-dark" style={{ width: 24, height: 24 }} />
-    </div>
-  )
-}
-
 function AppRoutes() {
   return (
     <Routes>
@@ -52,6 +50,7 @@ function AppRoutes() {
       <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/voice" element={<ProtectedRoute><VoiceSession /></ProtectedRoute>} />
+      <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

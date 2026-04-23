@@ -3,6 +3,10 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { signOut } from '../lib/supabase'
+import ScoreHistory from '../components/ScoreHistory'
+import CustomGoals from '../components/CustomGoals'
+import ShareCard from '../components/ShareCard'
+import Journal from '../components/Journal'
 
 // Scoring engine
 const PRI_PTS = { high: 8, medium: 5, low: 3 }
@@ -82,6 +86,9 @@ export default function Dashboard() {
   const [chatLoad, setChatLoad] = useState(false)
   const [activeTab, setActiveTab] = useState(IS_WEEKEND ? 'personal' : 'work')
   const [loading, setLoading] = useState(true)
+  const [activeSection, setActiveSection] = useState('overview') // overview | history | goals | journal | share
+  const [weeklyReport, setWeeklyReport] = useState(null)
+  const [reportLoading, setReportLoading] = useState(false)
   const chatEndRef = useRef(null)
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
 
@@ -670,6 +677,64 @@ export default function Dashboard() {
                 <button key={p} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', cursor: 'pointer', fontFamily: "'Nunito Sans',sans-serif" }} onClick={() => setChatIn(p)}>{p}</button>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Section Tabs */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', background: 'var(--surface)', overflowX: 'auto' }}>
+            {[
+              { id: 'overview', label: '📊 Overview' },
+              { id: 'history', label: '📈 Progress' },
+              { id: 'goals', label: '🎯 My Goals' },
+              { id: 'journal', label: '📝 Journal' },
+              { id: 'share', label: '🏆 Share' },
+            ].map(s => (
+              <button key={s.id} onClick={() => setActiveSection(s.id)} style={{
+                padding: '12px 16px', border: 'none', background: 'transparent', cursor: 'pointer',
+                fontSize: 12, fontWeight: 700, fontFamily: "'Nunito Sans',sans-serif", whiteSpace: 'nowrap',
+                color: activeSection === s.id ? 'var(--primary)' : 'var(--text-3)',
+                borderBottom: `2px solid ${activeSection === s.id ? 'var(--primary)' : 'transparent'}`,
+                transition: 'all .15s'
+              }}>{s.label}</button>
+            ))}
+          </div>
+          <div style={{ padding: 20 }}>
+            {activeSection === 'overview' && (
+              <div>
+                <p style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 14 }}>Your daily performance at a glance. Tap habits and tasks above to update your score.</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
+                  {[
+                    { label: 'Tasks Done Today', val: `${Object.values(sc.catBreakdown).reduce((a,v)=>a+v.done,0)}/${Object.values(sc.catBreakdown).reduce((a,v)=>a+v.total,0)}`, color: 'var(--primary)' },
+                    { label: 'Habits Done', val: `${completedHabitIds.length}/${habits.length}`, color: '#065f46' },
+                    { label: 'Score', val: `${sc.pct}/100`, color: sc.tier.color },
+                    { label: 'Confidence', val: `${confidence}/10`, color: 'var(--navy)' },
+                  ].map(s => (
+                    <div key={s.label} style={{ padding: 14, background: 'var(--surface)', borderRadius: 10, textAlign: 'center' }}>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: s.color, fontFamily: "'Fraunces',serif" }}>{s.val}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeSection === 'history' && <ScoreHistory />}
+            {activeSection === 'goals' && (
+              <CustomGoals
+                tasks={tasks}
+                onTasksChange={(newTasks) => setTasks(newTasks)}
+              />
+            )}
+            {activeSection === 'journal' && <Journal />}
+            {activeSection === 'share' && (
+              <ShareCard
+                score={sc.pct}
+                tier={sc.tier.label}
+                tierColor={sc.tier.color}
+                firstName={firstName}
+                focus={focus}
+              />
+            )}
           </div>
         </div>
 
