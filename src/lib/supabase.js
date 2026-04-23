@@ -3,12 +3,18 @@ import { createClient } from '@supabase/supabase-js'
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase env vars — check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel')
+}
+
+// IMPORTANT: detectSessionInUrl: false — prevents hanging on localhost redirect
+// flowType: 'implicit' — no redirect needed, works without correct Site URL
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false, // CRITICAL: stops it looking for auth tokens in URL
-    flowType: 'pkce'
+    detectSessionInUrl: false,
+    flowType: 'implicit'
   }
 })
 
@@ -16,10 +22,7 @@ export const signUp = (email, password, fullName) =>
   supabase.auth.signUp({
     email,
     password,
-    options: {
-      data: { full_name: fullName },
-      emailRedirectTo: `${window.location.origin}/dashboard`
-    }
+    options: { data: { full_name: fullName } }
   })
 
 export const signIn = (email, password) =>
@@ -31,7 +34,7 @@ export const getUser = () => supabase.auth.getUser()
 
 export const getSession = () => supabase.auth.getSession()
 
-// Default tasks per pillar
+// Default tasks seeded during onboarding
 export const DEFAULT_TASKS = {
   work: [
     { text: "Complete your #1 priority work task before noon", priority: "high" },
