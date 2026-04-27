@@ -52,6 +52,13 @@ export default function Work() {
   const [showAddMeeting, setShowAddMeeting] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
 
+  // Calendar state
+  const [calendarEvents, setCalendarEvents] = useState([])
+  const [calendarLoading, setCalendarLoading] = useState(false)
+  const [calendarError, setCalendarError] = useState(null)
+  const [syncingTaskId, setSyncingTaskId] = useState(null)
+  const [calendarConnected, setCalendarConnected] = useState(true)
+
   const [taskForm, setTaskForm] = useState({ title: '', description: '', priority: 'medium', status: 'todo', due_date: '', is_urgent: false, is_important: true, estimated_minutes: '' })
   const [projectForm, setProjectForm] = useState({ name: '', description: '', color: '#1c3d2e', icon: '📁', priority: 'medium', due_date: '' })
   const [meetingForm, setMeetingForm] = useState({ title: '', meeting_date: TODAY, attendees: '', agenda: '', notes: '', action_items: '' })
@@ -90,6 +97,78 @@ export default function Work() {
     // Load EA greeting
     loadEAGreeting(projR.data || [], tasksR.data || [])
     setLoading(false)
+
+    // Load calendar events in background
+    loadCalendarEvents()
+  }
+
+  const loadCalendarEvents = async () => {
+    setCalendarLoading(true)
+    setCalendarError(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const r = await fetch('/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'get_week' })
+      })
+      if (!r.ok) { setCalendarConnected(false); return }
+      const d = await r.json()
+      setCalendarEvents(Array.isArray(d.events) ? d.events : [])
+      setCalendarConnected(true)
+    } catch (e) {
+      setCalendarConnected(false)
+    }
+    setCalendarLoading(false)
+  }
+
+  const syncTaskToCalendar = async (task) => {
+    if (!task.due_date) { showToast('Add a due date to the task first'); return }
+    setSyncingTaskId(task.id)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const r = await fetch('/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'create_from_task', task })
+      })
+      const d = await r.json()
+      if (d.success) {
+        setTasks(p => p.map(t => t.id === task.id ? { ...t, calendar_synced: true, calendar_event_id: d.event_id } : t))
+        showToast('Added to Google Calendar ✓')
+        loadCalendarEvents()
+      } else {
+        showToast('Calendar sync failed — check Google Calendar connection')
+        setCalendarConnected(false)
+      }
+    } catch {
+      showToast('Calendar sync failed')
+    }
+    setSyncingTaskId(null)
+  }
+
+  const syncAllTasks = async () => {
+    setCalendarLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const r = await fetch('/api/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action: 'sync_all_tasks' })
+      })
+      const d = await r.json()
+      if (d.synced > 0) {
+        showToast(`${d.synced} tasks synced to Google Calendar ✓`)
+        load()
+        loadCalendarEvents()
+      } else {
+        showToast(d.message || 'No new tasks to sync')
+      }
+    } catch { showToast('Sync failed') }
+    setCalendarLoading(false)
   }
 
   const loadEAGreeting = async (projs, taskList) => {
@@ -230,7 +309,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
-        {['board', 'assistant', 'focus', 'meetings'].map(tab => (
+        {['board', 'calendar', 'assistant', 'focus', 'meetings'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '7px 14px', borderRadius: 20, border: '1.5px solid',
             borderColor: activeTab === tab ? '#1c3d2e' : 'var(--border)',
@@ -386,6 +465,114 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
                   </div>
                 )
               })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CALENDAR TAB */}
+      {activeTab === 'calendar' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+          {/* Connection status + sync button */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div className="eyebrow" style={{ marginBottom: 3 }}>📅 Google Calendar</div>
+              <p style={{ fontSize: 12, color: calendarConnected ? '#16a34a' : '#dc2626', fontWeight: 700 }}>
+                {calendarConnected ? '✓ Connected' : '✕ Not connected — reconnect Google Calendar in settings'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={syncAllTasks} disabled={calendarLoading || !calendarConnected} className="btn btn-sm"
+                style={{ background: '#1c3d2e', color: '#fff', border: 'none', opacity: calendarLoading || !calendarConnected ? .5 : 1, fontSize: 11 }}>
+                {calendarLoading ? '...' : '↑ Sync All Tasks'}
+              </button>
+              <button onClick={loadCalendarEvents} disabled={calendarLoading} className="btn btn-sm"
+                style={{ border: '1px solid #1c3d2e', color: '#1c3d2e', background: 'transparent', opacity: calendarLoading ? .5 : 1, fontSize: 11 }}>
+                {calendarLoading ? '...' : '↺ Refresh'}
+              </button>
+            </div>
+          </div>
+
+          {/* This week's events from Google Calendar */}
+          <div className="card" style={{ padding: 16 }}>
+            <div className="eyebrow" style={{ marginBottom: 12 }}>This Week's Events</div>
+            {calendarLoading && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '12px 0' }}>
+                <div className="spinner spinner-dark" style={{ width: 16, height: 16 }} />
+                <span style={{ fontSize: 13, color: 'var(--text-3)' }}>Loading from Google Calendar...</span>
+              </div>
+            )}
+            {!calendarLoading && calendarConnected && calendarEvents.length === 0 && (
+              <p style={{ fontSize: 13, color: 'var(--text-3)' }}>No events this week, or calendar needs reconnecting.</p>
+            )}
+            {!calendarLoading && calendarEvents.map((ev, i) => {
+              const isFramework = ev.title?.includes('[Framework]')
+              const eventDate = ev.date || (ev.start ? ev.start.split('T')[0] : '')
+              return (
+                <div key={ev.id || i} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
+                  <div style={{ width: 4, borderRadius: 2, alignSelf: 'stretch', background: isFramework ? '#1c3d2e' : '#6b7280', flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 3 }}>
+                      {isFramework && <span style={{ fontSize: 9, fontWeight: 800, background: '#f0fdf4', color: '#1c3d2e', padding: '1px 6px', borderRadius: 4 }}>FRAMEWORK</span>}
+                      <p style={{ fontSize: 14, fontWeight: 600 }}>{ev.title?.replace('[Framework] ', '')}</p>
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text-3)' }}>
+                      {eventDate && new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {ev.time ? ` · ${ev.time}` : ''}
+                      {ev.location ? ` · ${ev.location}` : ''}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Tasks with due dates — ready to sync */}
+          <div className="card" style={{ padding: 16 }}>
+            <div className="eyebrow" style={{ marginBottom: 12 }}>📋 Add Tasks to Calendar</div>
+            {tasks.filter(t => t.due_date).length === 0 && (
+              <p style={{ fontSize: 13, color: 'var(--text-3)' }}>No tasks have due dates yet. Add a due date to a task to sync it to Google Calendar.</p>
+            )}
+            {tasks.filter(t => t.due_date).map(task => {
+              const pc = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium
+              return (
+                <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 3 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: pc.color }}>{pc.dot} {pc.label}</span>
+                      {task.calendar_synced && <span style={{ fontSize: 9, fontWeight: 800, background: '#f0fdf4', color: '#16a34a', padding: '1px 6px', borderRadius: 4 }}>✓ SYNCED</span>}
+                    </div>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>{task.title}</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-3)' }}>
+                      📅 {new Date(task.due_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {task.estimated_minutes ? ` · ${task.estimated_minutes} min` : ''}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => syncTaskToCalendar(task)}
+                    disabled={syncingTaskId === task.id || task.calendar_synced || !calendarConnected}
+                    style={{
+                      padding: '6px 12px', borderRadius: 8, border: 'none',
+                      background: task.calendar_synced ? '#f0fdf4' : '#1c3d2e',
+                      color: task.calendar_synced ? '#16a34a' : '#fff',
+                      fontSize: 11, fontWeight: 700, cursor: task.calendar_synced ? 'default' : 'pointer',
+                      fontFamily: "'Nunito Sans',sans-serif",
+                      opacity: syncingTaskId === task.id || !calendarConnected ? .6 : 1
+                    }}
+                  >
+                    {syncingTaskId === task.id ? '...' : task.calendar_synced ? '✓ Added' : '+ Add to Calendar'}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Today's tasks without due dates */}
+          {tasks.filter(t => !t.due_date).length > 0 && (
+            <div style={{ padding: '12px 14px', background: '#fffbeb', borderRadius: 10, border: '1px solid #fde68a' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#d97706', marginBottom: 4 }}>⚠️ {tasks.filter(t => !t.due_date).length} tasks have no due date</p>
+              <p style={{ fontSize: 12, color: '#92400e' }}>Add due dates to tasks in the Board view to enable calendar sync.</p>
             </div>
           )}
         </div>
