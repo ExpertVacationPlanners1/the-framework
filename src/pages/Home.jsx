@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import ProactiveInsights from '../components/ProactiveInsights'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { signOut } from '../lib/supabase'
@@ -354,6 +355,11 @@ export default function Home() {
           {weeklyReport.coach_summary && <p style={{fontSize:13,color:'var(--text-2)',lineHeight:1.65,fontStyle:'italic'}}>{weeklyReport.coach_summary}</p>}
         </div>
       )}
+
+      {/* AI Insights */}
+      <div className="card" style={{ padding: 18 }}>
+        <ProactiveInsights compact={true} />
+      </div>
 
       {toast && <div className="toast">{toast}</div>}
     </div>
