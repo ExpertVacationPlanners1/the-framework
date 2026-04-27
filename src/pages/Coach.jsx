@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import ProactiveInsights from '../components/ProactiveInsights'
 
-const EDGE_URL = `https://dayawnsrnasnzyslzrga.supabase.co/functions/v1/coach-intelligence`
+const EDGE_URL = '/api/intelligence'
 
 const QUICK_PROMPTS = [
   { label: "How am I really doing?", prompt: "Give me an honest, direct assessment of how I'm doing based on everything you know about me." },

@@ -5,12 +5,17 @@ export default function AppLayout() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--surface)' }}>
       <BottomNav />
-      {/* Desktop: offset for sidebar. Mobile: offset for bottom nav */}
-      <main style={{ paddingLeft: 'var(--nav-width, 220px)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px' }}>
+      <main style={{ marginLeft: 220, paddingBottom: 40 }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '24px 24px' }}>
           <Outlet />
         </div>
       </main>
+      {/* Mobile: sidebar collapses, bottom nav takes over */}
+      <style>{`
+        @media (max-width: 768px) {
+          main { margin-left: 0 !important; padding-bottom: 90px !important; }
+        }
+      `}</style>
     </div>
   )
 }

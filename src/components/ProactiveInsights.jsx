@@ -12,7 +12,7 @@ const TYPE_CONFIG = {
   motivation:       { icon: '🔥', color: '#0369a1', bg: '#f0f9ff', label: 'COACH' },
 }
 
-const EDGE_URL = `https://dayawnsrnasnzyslzrga.supabase.co/functions/v1/coach-intelligence`
+const EDGE_URL = '/api/intelligence'
 
 export default function ProactiveInsights({ compact = false }) {
   const { user } = useAuth()
