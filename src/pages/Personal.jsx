@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import AppleHealthSync from '../components/AppleHealthSync'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -173,7 +174,7 @@ export default function Personal() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
-        {['today', 'workout', 'nutrition', 'metrics', 'goals'].map(tab => (
+        {['today', 'workout', 'nutrition', 'metrics', 'goals', 'sync'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '7px 14px', borderRadius: 20, border: '1.5px solid',
             borderColor: activeTab === tab ? '#7c3d00' : 'var(--border)',
@@ -622,6 +623,11 @@ export default function Personal() {
             </div>
           )}
         </div>
+      )}
+
+      {/* SYNC TAB */}
+      {activeTab === 'sync' && (
+        <AppleHealthSync />
       )}
 
       {toast && <div className="toast">{toast}</div>}
