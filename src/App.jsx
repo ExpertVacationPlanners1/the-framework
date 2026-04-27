@@ -9,7 +9,9 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
 import Home from './pages/Home'
-import PillarPage from './pages/PillarPage'
+import Work from './pages/Work'
+import Personal from './pages/Personal'
+import Financial from './pages/Financial'
 import Coach from './pages/Coach'
 import VoiceSession from './pages/VoiceSession'
 import Upgrade from './pages/Upgrade'
@@ -67,9 +69,9 @@ function AppRoutes() {
       {/* Protected — wrapped in AppLayout with nav */}
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Home />} />
-        <Route path="/work" element={<PillarPage category="work" />} />
-        <Route path="/personal" element={<PillarPage category="personal" />} />
-        <Route path="/financial" element={<PillarPage category="financial" />} />
+        <Route path="/work" element={<Work />} />
+        <Route path="/personal" element={<Personal />} />
+        <Route path="/financial" element={<Financial />} />
         <Route path="/coach" element={<Coach />} />
         <Route path="/upgrade" element={<Upgrade />} />
       </Route>
