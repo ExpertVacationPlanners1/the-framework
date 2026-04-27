@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -14,34 +14,33 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    // Timeout safety — never spin forever
-    const timer = setTimeout(() => {
-      setLoading(false)
-      setError('Login is taking too long. Please try again.')
-    }, 10000)
-
     try {
-      const { data, error } = await signIn(email, password)
-      clearTimeout(timer)
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
         const msg = error.message?.toLowerCase() || ''
-        if (msg.includes('invalid')) setError('Incorrect email or password.')
-        else if (msg.includes('confirmed')) setError('Please confirm your email first, then try again.')
+        if (msg.includes('invalid')) setError('Incorrect email or password. Please try again.')
+        else if (msg.includes('email not confirmed')) setError('Please confirm your email first.')
         else setError(error.message)
         setLoading(false)
         return
       }
 
       if (data?.session) {
-        navigate('/dashboard')
+        // Success — navigate to dashboard
+        navigate('/dashboard', { replace: true })
       } else {
-        setError('Could not sign in. Please try again.')
-        setLoading(false)
+        // Session missing — try refreshing
+        const { data: refreshed } = await supabase.auth.getSession()
+        if (refreshed?.session) {
+          navigate('/dashboard', { replace: true })
+        } else {
+          setError('Sign in failed. Please try again.')
+          setLoading(false)
+        }
       }
     } catch (err) {
-      clearTimeout(timer)
-      setError('Something went wrong. Check your connection and try again.')
+      setError(`Error: ${err.message}. Check your internet connection.`)
       setLoading(false)
     }
   }
@@ -58,13 +57,21 @@ export default function Login() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="input-group">
             <label className="input-label">Email</label>
-            <input type="email" className="input-field" placeholder="you@example.com"
-              value={email} onChange={e => setEmail(e.target.value)} required autoFocus/>
+            <input
+              type="email" className="input-field"
+              placeholder="you@example.com"
+              value={email} onChange={e => setEmail(e.target.value)}
+              required autoFocus
+            />
           </div>
           <div className="input-group">
             <label className="input-label">Password</label>
-            <input type="password" className="input-field" placeholder="Your password"
-              value={password} onChange={e => setPassword(e.target.value)} required/>
+            <input
+              type="password" className="input-field"
+              placeholder="Your password"
+              value={password} onChange={e => setPassword(e.target.value)}
+              required
+            />
           </div>
 
           {error && (
@@ -73,8 +80,14 @@ export default function Login() {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 4 }}>
-            {loading ? <span className="spinner" /> : 'Sign In'}
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 4, fontSize: 15 }}>
+            {loading
+              ? <span style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                  <span className="spinner" />
+                  Signing in...
+                </span>
+              : 'Sign In'
+            }
           </button>
         </form>
 

@@ -1,14 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Hardcoded fallbacks — these are public-safe anon keys
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dayawnsrnasnzyslzrga.supabase.co'
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRheWF3bnNybmFzbnp5c2x6cmdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODQ2MTcsImV4cCI6MjA5MTg2MDYxN30.dTKFKeMDaVogvJuEoD2iMk3mdoL9WliYtjjIVP8YVyI'
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Missing Supabase env vars — check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel')
-}
-
-// IMPORTANT: detectSessionInUrl: false — prevents hanging on localhost redirect
-// flowType: 'implicit' — no redirect needed, works without correct Site URL
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     autoRefreshToken: true,
@@ -18,23 +13,19 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 })
 
-export const signUp = (email, password, fullName) =>
-  supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: fullName } }
-  })
-
 export const signIn = (email, password) =>
   supabase.auth.signInWithPassword({ email, password })
 
+export const signUp = (email, password, fullName) =>
+  supabase.auth.signUp({
+    email, password,
+    options: { data: { full_name: fullName } }
+  })
+
 export const signOut = () => supabase.auth.signOut()
-
 export const getUser = () => supabase.auth.getUser()
-
 export const getSession = () => supabase.auth.getSession()
 
-// Default tasks seeded during onboarding
 export const DEFAULT_TASKS = {
   work: [
     { text: "Complete your #1 priority work task before noon", priority: "high" },
