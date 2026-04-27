@@ -10,32 +10,31 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Timeout — never spin forever
-    const timeout = setTimeout(() => setLoading(false), 5000)
+    let mounted = true
 
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      clearTimeout(timeout)
-      if (error) {
-        console.error('Session error:', error)
-        setLoading(false)
-        return
-      }
-      setUser(session?.user ?? null)
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return
       if (session?.user) {
-        loadProfile(session.user.id)
+        setUser(session.user)
+        loadProfile(session.user.id, mounted)
       } else {
         setLoading(false)
       }
     }).catch(() => {
-      clearTimeout(timeout)
-      setLoading(false)
+      if (mounted) setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null)
+    // Listen for auth changes (sign in, sign out, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return
       if (session?.user) {
-        await loadProfile(session.user.id)
+        setUser(session.user)
+        if (event === 'SIGNED_IN') {
+          loadProfile(session.user.id, mounted)
+        }
       } else {
+        setUser(null)
         setProfile(null)
         setSettings(null)
         setLoading(false)
@@ -43,27 +42,31 @@ export function AuthProvider({ children }) {
     })
 
     return () => {
-      clearTimeout(timeout)
+      mounted = false
       subscription.unsubscribe()
     }
   }, [])
 
-  const loadProfile = async (userId) => {
+  const loadProfile = async (userId, mounted = true) => {
     try {
-      const [profileRes, settingsRes] = await Promise.allSettled([
+      const [profileRes, settingsRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('user_settings').select('*').eq('user_id', userId).single()
+        supabase.from('user_settings').select('*').eq('user_id', userId).maybeSingle()
       ])
-      setProfile(profileRes.value?.data || null)
-      setSettings(settingsRes.value?.data || null)
-    } catch (err) {
-      console.error('Profile load error:', err)
+      if (!mounted) return
+      setProfile(profileRes.data || null)
+      setSettings(settingsRes.data || null)
+    } catch {
+      // Profile may not exist yet — that's ok
     } finally {
-      setLoading(false)
+      if (mounted) setLoading(false)
     }
   }
 
-  const refreshProfile = () => user && loadProfile(user.id)
+  const refreshProfile = async () => {
+    if (!user) return
+    await loadProfile(user.id)
+  }
 
   return (
     <AuthContext.Provider value={{ user, profile, settings, loading, refreshProfile }}>

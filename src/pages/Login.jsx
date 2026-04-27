@@ -1,48 +1,54 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+// Login doesn't need to navigate — useAuth onAuthStateChange handles it
+// Once signed in, ProtectedRoute will automatically redirect to /dashboard
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-      if (error) {
-        const msg = error.message?.toLowerCase() || ''
-        if (msg.includes('invalid')) setError('Incorrect email or password. Please try again.')
-        else if (msg.includes('email not confirmed')) setError('Please confirm your email first.')
-        else setError(error.message)
-        setLoading(false)
-        return
-      }
+    if (error) {
+      const msg = error.message?.toLowerCase() || ''
+      if (msg.includes('invalid')) setError('Incorrect email or password.')
+      else if (msg.includes('confirm')) setError('Please check your email and confirm your account first.')
+      else setError(error.message)
+      setLoading(false)
+      return
+    }
 
-      if (data?.session) {
-        // Success — navigate to dashboard
-        navigate('/dashboard', { replace: true })
-      } else {
-        // Session missing — try refreshing
-        const { data: refreshed } = await supabase.auth.getSession()
-        if (refreshed?.session) {
-          navigate('/dashboard', { replace: true })
-        } else {
-          setError('Sign in failed. Please try again.')
-          setLoading(false)
-        }
-      }
-    } catch (err) {
-      setError(`Error: ${err.message}. Check your internet connection.`)
+    if (data?.session) {
+      // Auth context will pick this up via onAuthStateChange
+      // ProtectedRoute will redirect automatically — just show success
+      setSuccess(true)
+      // Don't call navigate() — let the auth state drive routing
+    } else {
+      setError('Sign in failed — please try again.')
       setLoading(false)
     }
+  }
+
+  if (success) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>✅</div>
+          <h2 className="font-serif" style={{ fontSize: 22, marginBottom: 8 }}>Signed in!</h2>
+          <p style={{ fontSize: 14, color: 'var(--text-3)', marginBottom: 20 }}>Loading your dashboard...</p>
+          <div className="spinner spinner-dark" style={{ margin: '0 auto', width: 28, height: 28 }} />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -80,11 +86,11 @@ export default function Login() {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 4, fontSize: 15 }}>
+          <button type="submit" className="btn btn-primary btn-full"
+            disabled={loading} style={{ marginTop: 4, fontSize: 15 }}>
             {loading
               ? <span style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-                  <span className="spinner" />
-                  Signing in...
+                  <span className="spinner" /> Signing in...
                 </span>
               : 'Sign In'
             }

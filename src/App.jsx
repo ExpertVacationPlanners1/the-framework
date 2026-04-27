@@ -45,7 +45,12 @@ function OnboardingRoute({ children }) {
 function PublicRoute({ children }) {
   const { user, profile, loading } = useAuth()
   if (loading) return <Loader />
-  if (user && profile?.onboarded) return <Navigate to="/dashboard" replace />
+  // If logged in and onboarded, go to dashboard
+  if (user && profile && profile.onboarded) return <Navigate to="/dashboard" replace />
+  // If logged in but not onboarded, go to onboarding
+  if (user && profile && !profile.onboarded) return <Navigate to="/onboarding" replace />
+  // If logged in but profile still loading, wait
+  if (user && !profile && !loading) return <Loader />
   return children
 }
 
