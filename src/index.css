@@ -394,3 +394,271 @@ a { color: inherit; text-decoration: none; }
 /* Remove old single-page layout classes that conflict */
 .dashboard { display: block; max-width: 100%; padding: 0; }
 .dashboard-main, .dashboard-side { all: unset; display: block; }
+
+/* ════════════════════════════════════════════
+   MOBILE-FIRST LAYOUT SYSTEM
+   ════════════════════════════════════════════ */
+
+/* ── Sidebar (desktop) ── */
+.sidebar-nav {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 220px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  box-shadow: 2px 0 8px rgba(0,0,0,.04);
+}
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary);
+}
+.sidebar-links {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+.sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Nunito Sans', sans-serif;
+  color: var(--text-2);
+  transition: all .15s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.sidebar-link:hover { background: var(--surface); }
+.sidebar-link.active { background: var(--primary-light); color: var(--primary); }
+.sidebar-icon { font-size: 18px; flex-shrink: 0; }
+.sidebar-upgrade {
+  background: linear-gradient(135deg, var(--primary), #2d5a3d) !important;
+  color: #fff !important;
+  margin-top: 4px;
+}
+.sidebar-upgrade:hover { opacity: .9; }
+.sidebar-signout { color: var(--text-3) !important; font-size: 13px !important; }
+.sidebar-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+
+/* ── Bottom nav (mobile) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  z-index: 200;
+  padding: 6px 0;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+}
+.bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  padding: 4px 6px;
+  color: var(--text-3);
+  transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+}
+.bottom-tab.active { color: var(--primary); }
+.bottom-tab-icon { font-size: 22px; line-height: 1; }
+.bottom-tab-label {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: 'Nunito Sans', sans-serif;
+  letter-spacing: .3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Main content ── */
+.app-main {
+  margin-left: 220px;
+  min-height: 100vh;
+}
+.app-content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+}
+
+/* ════════════════════════════════════════════
+   MOBILE BREAKPOINT (≤ 768px)
+   ════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Hide sidebar, show bottom nav */
+  .sidebar-nav { display: none !important; }
+  .bottom-nav { display: flex !important; }
+
+  /* Reset main layout */
+  .app-main { margin-left: 0 !important; }
+  .app-content {
+    padding: 16px 14px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  /* Card padding tighter */
+  .card { padding: 14px !important; border-radius: 14px; }
+
+  /* Auth card */
+  .auth-card { padding: 28px 20px; margin: 16px; }
+  .auth-container { padding: 16px; align-items: flex-start; padding-top: 40px; }
+
+  /* Onboarding */
+  .onboarding-card { padding: 28px 20px; margin: 12px; }
+
+  /* Collapse 2-col grids */
+  .grid-2 { grid-template-columns: 1fr !important; }
+
+  /* Typography scaling */
+  h1 { font-size: clamp(22px, 6vw, 28px) !important; }
+  h2 { font-size: clamp(18px, 5vw, 22px) !important; }
+
+  /* Input / button touch targets */
+  .input-field { font-size: 16px !important; min-height: 44px; padding: 10px 14px; }
+  .btn { min-height: 44px; font-size: 14px; }
+  .btn-sm { min-height: 36px; font-size: 12px; }
+
+  /* Tab bars — scrollable on mobile */
+  .tab-list {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .tab-list::-webkit-scrollbar { display: none; }
+
+  /* Chat bubbles full width-ish */
+  .bubble-user { max-width: 90%; }
+  .bubble-ai { max-width: 96%; }
+
+  /* Task rows — bigger touch targets */
+  .task-row { padding: 14px 0; }
+  .check-circle { width: 26px; height: 26px; min-width: 26px; }
+
+  /* Habit rings */
+  .habit-ring { width: 52px; height: 52px; font-size: 24px; }
+
+  /* Toast stays visible on mobile */
+  .toast {
+    bottom: calc(80px + env(safe-area-inset-bottom) + 8px);
+    left: 14px;
+    right: 14px;
+    transform: none;
+    width: auto;
+    text-align: center;
+  }
+
+  /* Score ring text */
+  .score-num { font-size: 52px !important; }
+
+  /* Voice session full height on mobile */
+  .voice-pulse { width: 88px; height: 88px; font-size: 36px; }
+
+  /* Inline stat grids */
+  [style*="grid-template-columns: 'repeat(3"] { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ════════════════════════════════════════════
+   EXTRA SMALL (≤ 390px — iPhone SE etc)
+   ════════════════════════════════════════════ */
+@media (max-width: 390px) {
+  .app-content { padding: 12px 12px; }
+  .card { padding: 12px !important; }
+  .bottom-tab-label { font-size: 9px; }
+  .bottom-tab-icon { font-size: 20px; }
+  .btn { font-size: 13px; }
+  .input-field { font-size: 15px !important; }
+}
+
+/* ════════════════════════════════════════════
+   SAFE AREA / NOTCH SUPPORT
+   ════════════════════════════════════════════ */
+@supports (padding: max(0px)) {
+  .app-content {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+  .bottom-nav {
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ════════════════════════════════════════════
+   MOBILE-SPECIFIC COMPONENT FIXES
+   ════════════════════════════════════════════ */
+
+/* Financial page — collapse stat grids */
+@media (max-width: 768px) {
+  /* Net worth hero */
+  .fin-hero-grid { grid-template-columns: 1fr !important; }
+
+  /* Tabs scrollable */
+  .pill-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .pill-tabs::-webkit-scrollbar { display: none; }
+  .pill-tab { flex-shrink: 0; }
+
+  /* Work board columns — stack on mobile */
+  .kanban-board { flex-direction: column !important; }
+  .kanban-col { min-width: unset !important; width: 100% !important; }
+
+  /* Personal page calorie ring smaller */
+  .cal-ring svg { width: 60px !important; height: 60px !important; }
+
+  /* Apple health sync code block */
+  .health-code { font-size: 10px !important; }
+}
+
+/* Prevent horizontal scroll globally on mobile */
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  * { box-sizing: border-box; }
+}

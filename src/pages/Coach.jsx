@@ -164,7 +164,7 @@ export default function Coach() {
       {/* What coach knows */}
       <div className="card" style={{ padding: 16, background: 'linear-gradient(135deg, #1a2f1a, #0d1f0d)' }}>
         <div className="eyebrow" style={{ color: '#a8d4b0', marginBottom: 12 }}>🧠 What Your Coach Knows</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8 }}>
           {[
             { label: 'Main Goal', val: settings?.primary_goal ? settings.primary_goal.slice(0, 38) + (settings.primary_goal.length > 38 ? '...' : '') : 'Not set yet' },
             { label: '7-Day Avg', val: avgScore ? `${avgScore}/100` : 'Building...' },

@@ -308,7 +308,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
+      <div className="pill-tabs" style={{ display: 'flex', gap: 4, paddingBottom: 2 }}>
         {['board', 'calendar', 'assistant', 'focus', 'meetings'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '7px 14px', borderRadius: 20, border: '1.5px solid',
@@ -352,7 +352,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
             <div className="card" style={{ padding: 16, border: '1.5px solid #1c3d2e' }}>
               <input className="input-field" placeholder="Task title" value={taskForm.title} onChange={e => setTaskForm(p => ({ ...p, title: e.target.value }))} style={{ marginBottom: 8, fontSize: 14, fontWeight: 600 }} autoFocus />
               <textarea className="input-field" placeholder="Description (optional)" value={taskForm.description} onChange={e => setTaskForm(p => ({ ...p, description: e.target.value }))} rows={2} style={{ resize: 'none', marginBottom: 8, fontSize: 13 }} />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
                 <select className="input-field" value={taskForm.priority} onChange={e => setTaskForm(p => ({ ...p, priority: e.target.value }))} style={{ fontSize: 13 }}>
                   {Object.entries(PRIORITY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.dot} {v.label}</option>)}
                 </select>
@@ -378,7 +378,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
           {/* Add project form */}
           {showAddProject && (
             <div className="card" style={{ padding: 16, border: '1.5px solid #1c3d2e' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
                 <input className="input-field" placeholder="Project name" value={projectForm.name} onChange={e => setProjectForm(p => ({ ...p, name: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" placeholder="Icon (emoji)" value={projectForm.icon} onChange={e => setProjectForm(p => ({ ...p, icon: e.target.value }))} style={{ fontSize: 20, textAlign: 'center' }} />
                 <input type="date" className="input-field" value={projectForm.due_date} onChange={e => setProjectForm(p => ({ ...p, due_date: e.target.value }))} style={{ fontSize: 13 }} />
@@ -633,7 +633,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
               <textarea className="input-field" rows={2} value={focusForm.wins} onChange={e => setFocusForm(p => ({ ...p, wins: e.target.value }))} placeholder="What have you already done right today?" style={{ resize: 'none', fontSize: 13 }} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 14 }}>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', display: 'block', marginBottom: 6 }}>Energy {focusForm.energy_level}/10</label>
                 <input type="range" min={1} max={10} value={focusForm.energy_level} onChange={e => setFocusForm(p => ({ ...p, energy_level: +e.target.value }))} style={{ width: '100%', accentColor: '#1c3d2e' }} />
@@ -650,7 +650,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
           {/* Priority Matrix */}
           <div className="card" style={{ padding: 16 }}>
             <div className="eyebrow" style={{ marginBottom: 12 }}>📊 Priority Matrix</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8 }}>
               {[
                 { label: 'Urgent + Important', color: '#dc2626', bg: '#fef2f2', tasks: tasks.filter(t => t.is_urgent && t.is_important), desc: 'DO FIRST' },
                 { label: 'Important, Not Urgent', color: '#2563eb', bg: '#eff6ff', tasks: tasks.filter(t => !t.is_urgent && t.is_important), desc: 'SCHEDULE' },
@@ -682,7 +682,7 @@ As their EA: be decisive, prioritize ruthlessly, push back on distractions. 3-5 
 
           {showAddMeeting && (
             <div className="card" style={{ padding: 16, border: '1.5px solid #1c3d2e' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" placeholder="Meeting title" value={meetingForm.title} onChange={e => setMeetingForm(p => ({ ...p, title: e.target.value }))} style={{ fontSize: 13 }} />
                 <input type="date" className="input-field" value={meetingForm.meeting_date} onChange={e => setMeetingForm(p => ({ ...p, meeting_date: e.target.value }))} style={{ fontSize: 13 }} />
               </div>

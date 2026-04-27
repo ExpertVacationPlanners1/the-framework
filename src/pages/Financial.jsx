@@ -168,7 +168,7 @@ export default function Financial() {
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 14 }}>
           <span style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(32px,8vw,48px)', fontWeight: 900, color: netWorth >= 0 ? '#22c55e' : '#f43f5e', lineHeight: 1 }}>{fmt(netWorth)}</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 8 }}>
           {[
             { label: 'Assets', val: fmt(totalAssets), color: '#22c55e' },
             { label: 'Debts', val: fmt(totalLiabilities), color: '#f43f5e' },
@@ -183,7 +183,7 @@ export default function Financial() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
+      <div className="pill-tabs" style={{ display: 'flex', gap: 4, paddingBottom: 2 }}>
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '7px 14px', borderRadius: 20, border: '1.5px solid',
@@ -200,7 +200,7 @@ export default function Financial() {
       {activeTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Quick stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
             {[
               { icon: '📥', label: 'Monthly Income', val: fmt(monthIncome || +budget?.income || 0), color: '#16a34a', sub: 'this month' },
               { icon: '📤', label: 'Monthly Spend', val: fmt(monthExpenses), color: '#dc2626', sub: 'logged expenses' },
@@ -270,7 +270,7 @@ export default function Financial() {
 
           {showAddAccount && (
             <div className="card" style={{ padding: 16, border: '1.5px solid var(--navy)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" placeholder="Account name" value={acctForm.name} onChange={e => setAcctForm(p => ({ ...p, name: e.target.value }))} style={{ fontSize: 13 }} />
                 <select className="input-field" value={acctForm.account_type} onChange={e => setAcctForm(p => ({ ...p, account_type: e.target.value }))} style={{ fontSize: 13 }}>
                   {Object.entries(ACCOUNT_TYPES).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
@@ -350,7 +350,7 @@ export default function Financial() {
 
           {showAddTxn && (
             <div className="card" style={{ padding: 16, border: '1.5px solid var(--navy)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" placeholder="Description" value={txnForm.description} onChange={e => setTxnForm(p => ({ ...p, description: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" type="number" placeholder="Amount ($)" value={txnForm.amount} onChange={e => setTxnForm(p => ({ ...p, amount: e.target.value }))} style={{ fontSize: 13 }} />
                 <select className="input-field" value={txnForm.type} onChange={e => setTxnForm(p => ({ ...p, type: e.target.value }))} style={{ fontSize: 13 }}>
@@ -399,7 +399,7 @@ export default function Financial() {
 
           {showAddBill && (
             <div className="card" style={{ padding: 16, border: '1.5px solid var(--navy)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" placeholder="Bill name" value={billForm.name} onChange={e => setBillForm(p => ({ ...p, name: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" type="number" placeholder="Amount ($)" value={billForm.amount} onChange={e => setBillForm(p => ({ ...p, amount: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" type="number" placeholder="Due day (1-31)" value={billForm.due_day} onChange={e => setBillForm(p => ({ ...p, due_day: e.target.value }))} style={{ fontSize: 13 }} />
@@ -521,7 +521,7 @@ export default function Financial() {
 
           {showAddGoal && (
             <div className="card" style={{ padding: 16, border: '1.5px solid var(--navy)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" placeholder="Goal name" value={goalForm.name} onChange={e => setGoalForm(p => ({ ...p, name: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" type="number" placeholder="Target amount ($)" value={goalForm.target_amount} onChange={e => setGoalForm(p => ({ ...p, target_amount: e.target.value }))} style={{ fontSize: 13 }} />
                 <input className="input-field" type="number" placeholder="Current amount ($)" value={goalForm.current_amount} onChange={e => setGoalForm(p => ({ ...p, current_amount: e.target.value }))} style={{ fontSize: 13 }} />
@@ -582,7 +582,7 @@ export default function Financial() {
           {showAddCredit && (
             <div className="card" style={{ padding: 16, border: '1.5px solid var(--navy)' }}>
               <p style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>Get your free score from Credit Karma, Experian, or your bank app, then log it here.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                 <input className="input-field" type="number" placeholder="Score (300-850)" value={creditForm.score} onChange={e => setCreditForm(p => ({ ...p, score: e.target.value }))} min={300} max={850} style={{ fontSize: 13 }} />
                 <select className="input-field" value={creditForm.bureau} onChange={e => setCreditForm(p => ({ ...p, bureau: e.target.value }))} style={{ fontSize: 13 }}>
                   <option>TransUnion</option><option>Equifax</option><option>Experian</option>

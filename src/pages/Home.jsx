@@ -213,7 +213,7 @@ export default function Home() {
       </div>
 
       {/* Score card */}
-      <div className="card" style={{background:score.tier.bg,border:`2px solid ${score.tier.color}30`,padding:0,overflow:'hidden'}}>
+      <div className="card score-hero" style={{background:score.tier.bg,border:`2px solid ${score.tier.color}30`,padding:0,overflow:'hidden'}}>
         <div style={{padding:'20px 20px 0'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
             <div>

@@ -173,7 +173,7 @@ export default function Personal() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
+      <div className="pill-tabs" style={{ display: 'flex', gap: 4, paddingBottom: 2 }}>
         {['today', 'workout', 'nutrition', 'metrics', 'goals', 'sync'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '7px 14px', borderRadius: 20, border: '1.5px solid',
@@ -191,7 +191,7 @@ export default function Personal() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
           {/* Daily snapshot */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
             {[
               { icon: '🔥', label: 'Calories', val: totals.calories ? `${totals.calories}/${calorieGoal}` : 'Not logged', color: '#dc2626', sub: `${calPct}% of goal` },
               { icon: '🏋️', label: 'Workout', val: todayWorkout ? todayWorkout.workout_type : 'Not done', color: '#1c3d2e', sub: todayWorkout ? `${todayWorkout.duration_minutes || '?'} min` : 'Log a workout' },
@@ -216,7 +216,7 @@ export default function Personal() {
             <div className="progress-track" style={{ marginBottom: 12, height: 10 }}>
               <div className="progress-fill" style={{ width: calPct + '%', background: calPct > 100 ? '#dc2626' : '#1c3d2e', height: '100%' }} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 8 }}>
               {[
                 { label: 'Protein', val: Math.round(totals.protein), unit: 'g', color: '#1c3d2e', goal: 150 },
                 { label: 'Carbs', val: Math.round(totals.carbs), unit: 'g', color: '#f97316', goal: 250 },
@@ -243,7 +243,7 @@ export default function Personal() {
             </div>
             {showUpdateMetrics ? (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
                   {[
                     { k: 'weight_lbs', label: 'Weight (lbs)', ph: '170' },
                     { k: 'body_fat_pct', label: 'Body Fat %', ph: '18' },
@@ -261,7 +261,7 @@ export default function Personal() {
                 <button className="btn btn-primary btn-full" onClick={saveMetrics} style={{ fontSize: 13, background: '#7c3d00' }}>Save Metrics</button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 8 }}>
                 {[
                   { icon: '⚖️', label: 'Weight', val: bodyMetrics?.weight_lbs ? `${bodyMetrics.weight_lbs} lbs` : '—' },
                   { icon: '📏', label: 'Waist', val: bodyMetrics?.waist_inches ? `${bodyMetrics.waist_inches}"` : '—' },
@@ -316,7 +316,7 @@ export default function Personal() {
                     }}>{t.icon} {t.label}</button>
                   ))}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
                   <input className="input-field" placeholder="Workout name (optional)" value={workoutForm.name} onChange={e => setWorkoutForm(p => ({ ...p, name: e.target.value }))} style={{ fontSize: 13 }} />
                   <input className="input-field" type="number" placeholder="Duration (min)" value={workoutForm.duration_minutes} onChange={e => setWorkoutForm(p => ({ ...p, duration_minutes: e.target.value }))} style={{ fontSize: 13 }} />
                   <input className="input-field" type="number" placeholder="Calories burned" value={workoutForm.calories_burned} onChange={e => setWorkoutForm(p => ({ ...p, calories_burned: e.target.value }))} style={{ fontSize: 13 }} />
@@ -337,7 +337,7 @@ export default function Personal() {
                 {showAddExercise && (
                   <div style={{ background: '#f0fdf4', borderRadius: 10, padding: 12, marginBottom: 12, border: '1.5px solid #86efac' }}>
                     <input className="input-field" placeholder="Exercise name (e.g. Bench Press)" value={exerciseForm.name} onChange={e => setExerciseForm(p => ({ ...p, name: e.target.value }))} style={{ marginBottom: 8, fontSize: 13 }} />
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginBottom: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 6, marginBottom: 8 }}>
                       <input className="input-field" type="number" placeholder="Sets" value={exerciseForm.sets} onChange={e => setExerciseForm(p => ({ ...p, sets: e.target.value }))} style={{ fontSize: 12 }} />
                       <input className="input-field" type="number" placeholder="Reps" value={exerciseForm.reps} onChange={e => setExerciseForm(p => ({ ...p, reps: e.target.value }))} style={{ fontSize: 12 }} />
                       <input className="input-field" type="number" placeholder="Weight (lbs)" value={exerciseForm.weight_lbs} onChange={e => setExerciseForm(p => ({ ...p, weight_lbs: e.target.value }))} style={{ fontSize: 12 }} />
@@ -412,7 +412,7 @@ export default function Personal() {
                 <text x="32" y="36" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="900" fontFamily="sans-serif">{calPct}%</text>
               </svg>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 8 }}>
               {[{ label: 'Protein', val: Math.round(totals.protein) + 'g', goal: '150g', color: '#22c55e' }, { label: 'Carbs', val: Math.round(totals.carbs) + 'g', goal: '250g', color: '#f59e0b' }, { label: 'Fat', val: Math.round(totals.fat) + 'g', goal: '65g', color: '#f97316' }].map(m => (
                 <div key={m.label} style={{ textAlign: 'center', padding: '8px', background: 'rgba(255,255,255,.08)', borderRadius: 8 }}>
                   <div style={{ fontSize: 16, fontWeight: 900, color: m.color }}>{m.val}</div>
@@ -464,7 +464,7 @@ export default function Personal() {
                 {/* Manual entry */}
                 <div className="card" style={{ padding: 14, border: '1.5px solid #fdba74' }}>
                   <input className="input-field" placeholder="Food name" value={foodForm.food_name} onChange={e => setFoodForm(p => ({ ...p, food_name: e.target.value }))} style={{ marginBottom: 8, fontSize: 13 }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, marginBottom: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 8 }}>
                     <input className="input-field" type="number" placeholder="Calories" value={foodForm.calories} onChange={e => setFoodForm(p => ({ ...p, calories: e.target.value }))} style={{ fontSize: 13 }} />
                     <input className="input-field" placeholder="Serving size" value={foodForm.serving_size} onChange={e => setFoodForm(p => ({ ...p, serving_size: e.target.value }))} style={{ fontSize: 13 }} />
                     <input className="input-field" type="number" placeholder="Protein (g)" value={foodForm.protein_g} onChange={e => setFoodForm(p => ({ ...p, protein_g: e.target.value }))} style={{ fontSize: 13 }} />
@@ -535,7 +535,7 @@ export default function Personal() {
           {/* Log today's metrics */}
           <div className="card" style={{ padding: 16 }}>
             <div className="eyebrow" style={{ marginBottom: 12 }}>📏 Log Today's Metrics</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
               {[
                 { k: 'weight_lbs', label: 'Weight (lbs)', ph: bodyMetrics?.weight_lbs || '170' },
                 { k: 'body_fat_pct', label: 'Body Fat %', ph: bodyMetrics?.body_fat_pct || '18' },
@@ -565,7 +565,7 @@ export default function Personal() {
 
           {showAddGoal && (
             <div className="card" style={{ padding: 16, border: '1.5px solid #fdba74' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8, marginBottom: 10 }}>
                 <select className="input-field" value={goalForm.goal_type} onChange={e => setGoalForm(p => ({ ...p, goal_type: e.target.value }))} style={{ fontSize: 13 }}>
                   {['weight','strength','cardio','body_comp','habit','custom'].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
                 </select>
